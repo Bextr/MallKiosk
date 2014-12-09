@@ -1,0 +1,383 @@
+RootWidget:
+    gameworld: gameworld
+    canvas.before:
+        Rectangle:
+            size: self.size
+            pos: self.pos
+            source: 'assets/backgrounds/bg1.png'
+    GameWorld:
+        size: root.size
+        pos: root.pos
+        id: gameworld
+        gamescreenmanager: gamescreenmanager
+        GameView:
+            system_id: 'gameview'
+            focus_entity: False
+            updateable: True
+            gameworld: gameworld
+            id: gameview
+            pos: root.pos
+            do_scroll: True
+            render_system_order: ['renderer', ]
+            do_scroll_lock: False
+            scale_max: 20.
+            move_speed_multiplier: self.width / root.width
+            do_touch_zoom: True
+            canvas.before:
+                ScissorPush:
+                    size: self.size
+                    pos: self.pos
+            canvas.after:
+                ScissorPop:
+            
+        GameMap:
+            system_id: 'map'
+            id: map
+            map_size: (4096, 2400)
+            gameworld: gameworld
+        PositionSystem:
+            system_id: 'position'
+            gameworld: gameworld
+        ColorSystem:
+            system_id: 'color'
+            gameworld: gameworld
+        RotateSystem:
+            system_id: 'rotate'
+            gameworld: gameworld
+        ScaleSystem:
+            system_id: 'scale'
+            gameworld: gameworld
+        LerpSystem:
+            system_id: 'lerp'
+            gameworld: gameworld
+            updateable: True
+        Renderer:
+            system_id: 'renderer'
+            gameworld: gameworld
+            gameview: 'gameview'
+            do_color: True
+            do_rotate: True
+            do_scale: True
+            shader_source: 'assets/glsl/positioncolorrotatescaleshader.glsl'
+
+        GameScreenManager:
+            id: gamescreenmanager
+            size: root.size
+            pos: root.pos
+            gameworld: gameworld
+            FrontPage:
+                name: 'front_page'
+                id: front_page_screen
+            DirectoryCategories:
+                name: 'directory_categories'
+                id: directory_categories_screen
+            BathroomScreen:
+                name: 'bathroom'
+                id: bathroom_screen
+            CategoryScreen:
+                name: 'category'
+                id: category_screen
+            StoreScreen:
+                name: 'store'
+                id: store_screen
+
+<BathroomScreen@Screen>:
+    FloatLayout:
+        size: root.size
+        pos: root.pos
+        FlatIconButton:
+            size_hint: (.25, None)
+            id: back_button
+            height: '80dp'
+            text: 'Back'
+            pos_hint: {'x': .375, 'y': .025}
+            icon: 'fa-arrow-circle-left'
+            icon_color_tuple: ('Gray', '10000')
+            font_color_tuple: ('Gray', '10000')
+            color_tuple: ('Green', '500')
+            ripple_color_tuple: ('Green', '100')
+            font_ramp_tuple: ('back_categories', '1')
+            on_release: app.change_screen('main')
+
+
+
+
+<CategoryScreen>:
+    FloatLayout:
+        size: root.size
+        pos: root.pos
+        FloatLayout:
+            id: ad_left
+            size_hint: (.25, 1.0)
+        Image:
+            size_hint: (.5, .2)
+            pos_hint: {'x': .25, 'y':.8}
+            source: 'assets/images/vf-frontpage-logo.png'
+            id: logo
+        GridLayout:
+            cols: 4 if len(self.children ) > 4 else 3
+            size_hint: (.5, (root.height - back_button.height - back_button.y - subcat_options.height - logo.height)/root.height)
+            pos_hint: {'x': .25}
+            y: back_button.height + back_button.y + subcat_options.height
+            padding: '10dp'
+            spacing: '10dp'
+            id: logo_layout
+        FlatIconButton:
+            size_hint: (.25, None)
+            id: back_button
+            height: '80dp'
+            text: 'Back'
+            pos_hint: {'x': .375, 'y': .0125}
+            icon: 'fa-arrow-circle-left'
+            icon_color_tuple: ('Gray', '10000')
+            font_color_tuple: ('Gray', '10000')
+            font_ramp_tuple: ('back_categories', '1')
+            color_tuple: ('Green', '500')
+            ripple_color_tuple: ('Green', '100')
+            on_release: app.change_screen('directory_screen')
+        GridLayout:
+            cols: 3
+            rows: 3
+            id: subcat_options
+            size_hint: (.5, .1)
+            pos_hint: {'x': .25}
+            y: back_button.height + back_button.y
+            padding: '10dp'
+            spacing: '10dp'
+        FloatLayout:
+            id: ad_right
+            size_hint: (.25, 1.0)
+            pos_hint: {'x': .75}
+
+
+<StoreScreen>:
+    FloatLayout:
+        size: root.size
+        pos: root.pos
+        BoxLayout:
+            id: card_layout
+            size_hint: (.4, (root.height - back_button.height - back_button.y - .2)/root.height)
+            y: back_button.y + back_button.height
+            padding: '10dp'
+            spacing: '10dp'
+        FlatIconButton:
+            size_hint: (.25, None)
+            id: back_button
+            height: '80dp'
+            text: 'Back'
+            pos_hint: {'x': .375, 'y': .0125}
+            icon: 'fa-arrow-circle-left'
+            icon_color_tuple: ('Gray', '10000')
+            font_color_tuple: ('Gray', '10000')
+            color_tuple: ('Green', '500')
+            ripple_color_tuple: ('Green', '100')
+            font_ramp_tuple: ('back_store', '1')
+            on_release: app.change_screen('category_screen')
+
+<DirectoryCategories@Screen>:
+    FloatLayout:
+        size: root.size
+        pos: root.pos
+        FloatLayout:
+            id: ad_left
+            size_hint: (.25, 1.0)
+        FlatScrollView:
+            size_hint: (.5, .44)
+            pos_hint: {'x': .25, 'y': 0.015 + back_button.height/root.height}
+            id: scroll
+            BoxLayout:
+                orientation: 'horizontal'
+                width: scroll.width
+                pos: scroll.pos
+                size_hint: (1.0, None)
+                height: layout_1.height
+                padding: '10dp'
+                spacing: '10dp'
+
+                StackLayout:
+                    orientation: 'lr-bt'
+                    size_hint: (.5, None)
+                    height: self.minimum_height
+                    id: layout_1
+                    on_size: print('size of layout is', self.size, self.minimum_size)
+                    spacing: '10dp'
+                    FlatImageButton:
+                        text: 'Clothing'
+                        height: '80dp'
+                        size_hint: (1.0, None)
+                        icon_source: 'assets/icons/clothes.png'
+                        content_padding: '5dp'
+                        content_spacing: '5dp'
+                        font_color_tuple: ('Gray', '10000')
+                        font_ramp_tuple: ('Categories', '1')
+                        color_tuple: ('Cyan', '500')
+                        ripple_color_tuple: ('Cyan', '100')
+                        on_release: app.open_category('clothing')
+                    FlatImageButton:
+                        text: 'Beauty and Health'
+                        height: '80dp'
+                        size_hint: (1.0, None)
+                        icon_source: 'assets/icons/beauty.png'
+                        content_padding: '5dp'
+                        content_spacing: '5dp'
+                        font_color_tuple: ('Gray', '10000')
+                        font_ramp_tuple: ('Categories', '1')
+                        color_tuple: ('Cyan', '500')
+                        ripple_color_tuple: ('Cyan', '100')
+                        on_release: app.open_category('beauty')
+                    FlatImageButton:
+                        text: 'Accessories'
+                        height: '80dp'
+                        size_hint: (1.0, None)
+                        icon_source: 'assets/icons/accessories.png'
+                        content_padding: '5dp'
+                        content_spacing: '5dp'
+                        font_color_tuple: ('Gray', '10000')
+                        font_ramp_tuple: ('Categories', '1')
+                        color_tuple: ('Cyan', '500')
+                        ripple_color_tuple: ('Cyan', '100')
+                        on_release: app.open_category('accessories')
+                    FlatImageButton:
+                        text: 'Jewelry'
+                        height: '80dp'
+                        size_hint: (1.0, None)
+                        icon_source: 'assets/icons/jewelry.png'
+                        content_padding: '5dp'
+                        content_spacing: '5dp'
+                        font_color_tuple: ('Gray', '10000')
+                        font_ramp_tuple: ('Categories', '1')
+                        color_tuple: ('Cyan', '500')
+                        ripple_color_tuple: ('Cyan', '100')
+                        on_release: app.open_category('jewelry')
+                    FlatImageButton:
+                        text: 'Home Goods'
+                        height: '80dp'
+                        size_hint: (1.0, None)
+                        icon_source: 'assets/icons/home.png'
+                        content_padding: '5dp'
+                        content_spacing: '5dp'
+                        font_color_tuple: ('Gray', '10000')
+                        font_ramp_tuple: ('Categories', '1')
+                        color_tuple: ('Cyan', '500')
+                        ripple_color_tuple: ('Cyan', '100')
+                        on_release: app.open_category('home')
+                StackLayout:
+                    size_hint: (.5, None)
+                    height: self.minimum_height
+                    orientation: 'lr-bt'
+                    spacing: '10dp'
+                    FlatImageButtonLeft:
+                        text: 'Electronics'
+                        height: '80dp'
+                        size_hint: (1.0, None)
+                        icon_source: 'assets/icons/electronics.png'
+                        content_padding: '5dp'
+                        content_spacing: '5dp'
+                        font_color_tuple: ('Gray', '10000')
+                        font_ramp_tuple: ('Categories', '1')
+                        color_tuple: ('Cyan', '500')
+                        ripple_color_tuple: ('Cyan', '100')
+                        on_release: app.open_category('electronics')
+                    FlatImageButtonLeft:
+                        text: 'Food'
+                        height: '80dp'
+                        size_hint: (1.0, None)
+                        icon_source: 'assets/icons/food.png'
+                        content_padding: '5dp'
+                        content_spacing: '5dp'
+                        font_color_tuple: ('Gray', '10000')
+                        font_ramp_tuple: ('Categories', '1')
+                        color_tuple: ('Cyan', '500')
+                        ripple_color_tuple: ('Cyan', '100')
+                        on_release: app.open_category('food')
+                    FlatImageButtonLeft:
+                        text: 'Gifts'
+                        height: '80dp'
+                        size_hint: (1.0, None)
+                        icon_source: 'assets/icons/gifts.png'
+                        content_padding: '5dp'
+                        content_spacing: '5dp'
+                        font_color_tuple: ('Gray', '10000')
+                        font_ramp_tuple: ('Categories', '1')
+                        color_tuple: ('Cyan', '500')
+                        ripple_color_tuple: ('Cyan', '100')
+                        on_release: app.open_category('gifts')
+                    FlatImageButtonLeft:
+                        text: 'Movies'
+                        height: '80dp'
+                        size_hint: (1.0, None)
+                        icon_source: 'assets/icons/movies.png'
+                        content_padding: '5dp'
+                        content_spacing: '5dp'
+                        font_color_tuple: ('Gray', '10000')
+                        font_ramp_tuple: ('Categories', '1')
+                        color_tuple: ('Cyan', '500')
+                        ripple_color_tuple: ('Cyan', '100')
+                        on_release: app.open_category('movies')
+                    FlatImageButtonLeft:
+                        text: 'Shoes'
+                        height: '80dp'
+                        size_hint: (1.0, None)
+                        icon_source: 'assets/icons/shoes.png'
+                        content_padding: '5dp'
+                        content_spacing: '5dp'
+                        font_color_tuple: ('Gray', '10000')
+                        font_ramp_tuple: ('Categories', '1')
+                        color_tuple: ('Cyan', '500')
+                        ripple_color_tuple: ('Cyan', '100')
+                        on_release: app.open_category('shoes')
+        FlatIconButton:
+            size_hint: (.25, None)
+            id: back_button
+            height: '80dp'
+            text: 'Back'
+            pos_hint: {'x': .375, 'y': .0125}
+            icon: 'fa-arrow-circle-left'
+            icon_color_tuple: ('Gray', '0000')
+            font_color_tuple: ('Gray', '0000')
+            color_tuple: ('Green', '500')
+            ripple_color_tuple: ('Green', '100')
+            font_ramp_tuple: ('back_categories', '1')
+            on_release: app.change_screen('main')
+        FloatLayout:
+            id: ad_right
+            size_hint: (.25, 1.0)
+            pos_hint: {'x': .75}
+
+
+<FrontPage@Screen>:
+    FloatLayout:
+        size: root.size
+        pos: root.pos
+        StackLayout:
+            orientation: 'tb-lr'
+            size_hint: (.525, .8)
+            pos_hint: {'x': .025, 'y':.1}
+            spacing: [self.width*.025, self.height*.025]
+            FlatCard:
+                text: 'Directory'
+                size_hint: (.6, 1.0)
+                font_ramp_tuple: ('alone', '1')
+                font_color_tuple: ('Gray', '0000')
+                image_source: 'assets/icons/map.png'
+                color_tuple: ('Green', '500')
+                ripple_color_tuple: ('Green', '100')
+                on_release: app.change_screen('directory_screen')
+            FlatCard:
+                size_hint: (.4, .4875)
+                text: 'Bathrooms'
+                font_ramp_tuple: ('fp3', '1')
+                font_color_tuple: ('Gray', '0000')
+                color_tuple: ('Pink', '500')
+                ripple_color_tuple: ('Pink', '100')
+                image_source: 'assets/icons/bathrooms.png'
+                on_release: app.change_screen('bathroom_screen')
+            FlatCard:
+                size_hint: (.4, .4875)
+                text: 'Deals'
+                font_ramp_tuple: ('fp3', '1')
+                font_color_tuple: ('Gray', '0000')
+                disabled: True
+                image_source: 'assets/images/comingsoon.png'
+
+
